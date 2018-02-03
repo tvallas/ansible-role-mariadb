@@ -74,9 +74,10 @@
 - name: Create databases
   mysql_db:
     name: "{{ item.database }}"
-    collation: "{{ item.collation | default(default_collation) }}"
-    encoding: "{{ item.encoding | default(default_encoding) }}"
+    collation: "{{ item.collation | default(mariadb_default_collation) }}"
+    encoding: "{{ item.encoding | default(mariadb_default_encoding) }}"
     state: present
+  no_log: true    
   with_items: "{{ mariadb_databases }}"
 
 - name: Create the database users
@@ -85,7 +86,7 @@
     password: "{{ item.password }}"
     state: present
     priv: "{{ item.database }}.*:ALL,GRANT"
-    host: "{{ item.host | default(default_user_host) }}"
+    host: "{{ item.host | default(mariadb_default_user_host) }}"
   no_log: true
   with_items: "{{ mariadb_databases }}"
 
@@ -95,7 +96,7 @@
     password: "{{ item.password }}"
     state: present
     priv: "{{ item.privileges }}"
-    host: "{{ item.host | default(default_user_host) }}"
+    host: "{{ item.host | default(mariadb_default_user_host) }}"
   no_log: true
   with_items: "{{ mariadb_additional_privileges }}"
 
