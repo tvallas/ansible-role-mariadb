@@ -14,7 +14,6 @@ Role Variables
 #### `mariadb_root_password` (required)
 mariadb root user password
 
-
 #### `mariadb_default_collation` (optional)
 default database collation
 
@@ -27,23 +26,23 @@ default host for users
 #### `mariadb_databases` (optional)
 Creates database and configures a user with password for it. For example:
 
- ```
+```
  - database: mydb
    username: mydb
    password: reallygoodpassgoeshere
- ```
+```
 
 #### `mariadb_additional_privileges` (optional)
 
 Used for creating user accounts for existing databases. For example:
 
- ```
+```
  - database: mydb
    username: backupuser
    password: anotherreallygoodpassgoeshere
    privileges: mydb.*:SELECT,LOCK TABLES,SHOW VIEW,TRIGGER
    host: myserver.fqdn
- ```
+```
 
 #### `mariadb_option_files` (optional)
 
