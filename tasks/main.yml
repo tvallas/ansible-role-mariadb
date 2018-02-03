@@ -1,0 +1,112 @@
+---
+# tasks file for mariadb
+
+- name: Add yum repo for MariaDB
+  yum_repository:
+    name: MariaDB
+    description: "{{ mariadb_repo_description }}"
+    baseurl: "{{ mariadb_repo_baseurl }}"
+    gpgkey: "{{ mariadb_repo_gpgkey }}"
+    gpgcheck: "{{ mariadb_repo_gpgcheck }}"
+
+- name: Install MariaDB
+  yum:
+    name: MariaDB-server
+    state: installed
+
+- name: Install python-mysql for ansible
+  yum:
+    name: MySQL-python
+    state: installed
+
+- name: Start and enable MariaDB
+  systemd:
+    name: mariadb.service
+    state: started
+    enabled: yes
+
+- name: Set mariadb root user password
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    password: "{{ mariadb_root_password }}"
+    state: present
+  with_items:
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: Create option file for root user
+  template:
+    src: root-my.cnf.j2
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Delete the test database
+  mysql_db:
+    name: test
+    state: absent
+
+- name: Remove anonymous users
+  mysql_user:
+    name: ''
+    host: "{{ item }}"
+    state: absent
+  with_items:
+    - localhost
+    - "{{ ansible_hostname }}"
+    - "{{ ansible_fqdn }}"
+
+- name: Disable remote login for root
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+  changed_when: False
+
+- name: Create databases
+  mysql_db:
+    name: "{{ item.database }}"
+    collation: "{{ item.collation | default(default_collation) }}"
+    encoding: "{{ item.encoding | default(default_encoding) }}"
+    state: present
+  with_items: "{{ mariadb_databases }}"
+
+- name: Create the database users
+  mysql_user:
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    state: present
+    priv: "{{ item.database }}.*:ALL,GRANT"
+    host: "{{ item.host | default(default_user_host) }}"
+  no_log: true
+  with_items: "{{ mariadb_databases }}"
+
+- name: Create additional users
+  mysql_user:
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    state: present
+    priv: "{{ item.privileges }}"
+    host: "{{ item.host | default(default_user_host) }}"
+  no_log: true
+  with_items: "{{ mariadb_additional_privileges }}"
+
+- name: Deploy option files loop
+  include_tasks: "add_option_files.yml"
+  with_list: "{{ mariadb_option_files }}"
+  loop_control:
+    loop_var: mariadb_option_file
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False

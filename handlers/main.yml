@@ -1,0 +1,6 @@
+---
+# handlers file for mariadb
+- name: restart mariadb
+  systemd:
+    name: mariadb.service
+    state: restarted

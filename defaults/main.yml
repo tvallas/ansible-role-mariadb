@@ -1,0 +1,13 @@
+---
+# defaults file for mariadb
+
+mariadb_default_collation: "utf8_bin"
+mariadb_default_encoding: "utf8"
+mariadb_default_user_host: "localhost"
+mariadb_additional_privileges: []
+mariadb_option_files: []
+
+mariadb_repo_description: MariaDB 10.1 CentOS repository
+mariadb_repo_baseurl: http://yum.mariadb.org/10.1/centos7-amd64
+mariadb_repo_gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+mariadb_repo_gpgcheck: yes

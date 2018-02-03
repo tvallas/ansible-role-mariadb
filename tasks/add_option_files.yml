@@ -1,0 +1,13 @@
+---
+- name: Create option file
+  copy:
+    content: "{{ mariadb_option_file.content }}"
+    dest: "{{ mariadb_option_file.path}}"
+    owner: "{{ mariadb_option_file.owner }}"
+    group: "{{ mariadb_option_file.group }}"
+    mode: "{{ mariadb_option_file.mode }}"
+    selevel: _default
+    seuser: _default
+    serole: "{{ mariadb_option_file.serole }}"
+    setype: "{{ mariadb_option_file.setype }}"
+  no_log: true
