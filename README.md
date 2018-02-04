@@ -77,7 +77,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role, ansible-role-mariadb, tags: mariadb }
+         - { role, mariadb, tags: mariadb }
 
 License
 -------
